@@ -17,7 +17,7 @@ strongSwan uses the IKEv2 protocol, which allows for direct IPSec tunneling betw
 5. Configure the installation configuration in the config file `config_env.yml`
 6. Run the installation by using the following command:
    ```shell
-   ansible-playbook -i inventory.ini setup-server.yml
+   ansible-playbook -i inventory.ini all-install.yml
    ```
 
 Ensure to replace placeholder values like IP addresses, login credentials, and client secrets with your specific configurations.
