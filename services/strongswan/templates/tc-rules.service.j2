@@ -1,0 +1,9 @@
+[Unit]
+Description=Apply Traffic Control Rules
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/apply_tc_rules.sh
+
+[Install]
+WantedBy=multi-user.target

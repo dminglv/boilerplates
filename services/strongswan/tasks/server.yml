@@ -1,0 +1,29 @@
+# tasks/server.yml
+- name: Setup VPN server
+  become: yes
+  vars:
+    packages:
+      - strongswan
+      - strongswan-pki
+      - strongswan-libcharon
+      - libcharon-extra-plugins
+      - libcharon-extauth-plugins
+      - libstrongswan-extra-plugins
+      - libstrongswan-standard-plugins
+      - certbot
+      - net-tools
+  block:
+    - name: Include vars of config_env.yml
+      include_vars:
+        file: config_env.yml
+        name: config_env
+
+    - name: Update and upgrade apt packages
+      apt:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Install necessary packages
+      apt:
+        name: "{{ packages }}"
+        state: latest

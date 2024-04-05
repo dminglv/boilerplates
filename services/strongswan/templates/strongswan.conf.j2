@@ -1,0 +1,18 @@
+charon {
+  load_modular = yes
+  plugins {
+    include strongswan.d/charon/*.conf
+    eap-radius {
+      accounting = yes
+      servers {
+        server-a {
+          address = {{ config_env.radius_server }}
+          secret = {{ config_env.radius_secret }}
+          auth_port = 1812
+          acct_port = 1813
+        }
+      }
+    }
+  }
+include strongswan.d/*.conf
+}

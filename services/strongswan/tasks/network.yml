@@ -1,0 +1,117 @@
+# tasks/network.yml
+- name: Allow SSH through UFW
+  ufw:
+    rule: allow
+    port: '22'
+    proto: tcp
+  become: yes
+
+- name: Allow IPSec/IKE on port 500
+  ufw:
+    rule: allow
+    port: '500'
+    proto: udp
+  become: yes
+
+- name: Allow IPSec NAT-T on port 4500
+  ufw:
+    rule: allow
+    port: '4500'
+    proto: udp
+  become: yes
+
+- name: Set DEFAULT_FORWARD_POLICY to ACCEPT in /etc/default/ufw
+  lineinfile:
+    path: /etc/default/ufw
+    regexp: '^DEFAULT_FORWARD_POLICY="DROP"'
+    line: 'DEFAULT_FORWARD_POLICY="ACCEPT"'
+    backrefs: yes
+  become: yes
+
+- sysctl: name=net.ipv4.ip_forward value=1 sysctl_set=yes state=present reload=yes
+- sysctl: name=net.ipv4.ip_no_pmtu_disc value=1 sysctl_set=yes state=present reload=yes
+- sysctl: name=net.ipv4.conf.all.rp_filter value=1 sysctl_set=yes state=present reload=yes
+- sysctl: name=net.ipv4.conf.all.accept_redirects value=0 sysctl_set=yes state=present reload=yes
+- sysctl: name=net.ipv4.conf.all.send_redirects value=0 sysctl_set=yes state=present reload=yes
+- sysctl: name=net.ipv6.conf.all.disable_ipv6 value=0 sysctl_set=yes state=present reload=yes
+
+- name: Check if NAT and mangle rules already exist
+  command:
+    cmd: "grep -q -E 'POSTROUTING -s 10.10.10.0/24 -o eth0' /etc/ufw/before.rules"
+  register: grep_check
+  failed_when: grep_check.rc > 1
+  check_mode: no
+  ignore_errors: true
+
+- name: Insert NAT and mangle rules at the beginning of /etc/ufw/before.rules
+  blockinfile:
+    path: /etc/ufw/before.rules
+    insertbefore: BOF
+    block: |
+      *nat
+      -A POSTROUTING -s 10.10.10.0/24 -o eth0 -m policy --pol ipsec --dir out -j ACCEPT
+      -A POSTROUTING -s 10.10.10.0/24 -o eth0 -j MASQUERADE
+      COMMIT
+      
+      *mangle
+      -A FORWARD --match policy --pol ipsec --dir in -s 10.10.10.0/24 -o eth0 -p tcp -m tcp --tcp-flags SYN,RST SYN -m tcpmss --mss 1361:1536 -j TCPMSS --set-mss 1360
+      COMMIT
+    marker: "# {mark} ANSIBLE MANAGED BLOCK NAT and MANGLE"
+  when: grep_check.rc != 0
+  become: yes
+
+- name: Check if specific IPsec ACCEPT rules already exist
+  command:
+    cmd: "grep -q -E 'ufw-before-forward --match policy --pol ipsec --dir in --proto esp -s 10.10.10.0/24 -j ACCEPT|ufw-before-forward --match policy --pol ipsec --dir out --proto esp -d 10.10.10.0/24 -j ACCEPT' /etc/ufw/before.rules"
+  register: ipsec_rules_check
+  failed_when: ipsec_rules_check.rc > 1
+  check_mode: no
+  ignore_errors: true
+
+- name: Insert IPsec ACCEPT rules after the initial *filter block if they do not exist
+  blockinfile:
+    path: /etc/ufw/before.rules
+    insertafter: '^:ufw-not-local - \[0:0\]'
+    block: |
+      -A ufw-before-forward --match policy --pol ipsec --dir in --proto esp -s 10.10.10.0/24 -j ACCEPT
+      -A ufw-before-forward --match policy --pol ipsec --dir out --proto esp -d 10.10.10.0/24 -j ACCEPT
+    marker: "# {mark} ANSIBLE MANAGED BLOCK"
+  when: ipsec_rules_check.rc != 0
+  become: yes
+
+- name: Disable UFW to apply changes
+  command:
+    cmd: ufw disable
+  become: yes
+
+- name: Enable UFW
+  shell:
+    cmd: echo "yes" | ufw enable
+  become: yes
+
+- name: Copy tc rules
+  template:
+    src: templates/apply_tc_rules.sh.j2
+    dest: /usr/local/bin/apply_tc_rules.sh
+  become: yes
+
+- name: Change tc cron script rules
+  shell:
+    cmd: chmod +x /usr/local/bin/apply_tc_rules.sh
+  become: yes
+
+- name: Copy tc service file
+  template:
+    src: templates/tc-rules.service.j2
+    dest: /etc/systemd/system/tc-rules.service
+  become: yes
+
+- name: Restart daemon
+  command:
+    cmd: systemctl daemon-reload
+  become: yes
+
+- name: Enable service
+  command:
+    cmd: systemctl enable tc-rules.service
+  become: yes

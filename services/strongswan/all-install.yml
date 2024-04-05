@@ -1,0 +1,10 @@
+
+---
+- hosts: vpn_servers
+  tasks:
+    - include_tasks: tasks/server.yml
+    - include_tasks: tasks/strongswan.yml
+    - include_tasks: tasks/network.yml
+    - name: Reboot server
+      reboot:
+        reboot_timeout: 3600

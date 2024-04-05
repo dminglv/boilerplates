@@ -1,0 +1,5 @@
+certbot_email: "example@domain.com"
+vpn_domain: "vpn.domain.com"
+vpn_dns_servers: "1.1.1.1,1.0.0.1"
+radius_server: "127.0.0.1"
+radius_secret: "changeme123"

@@ -1,0 +1,57 @@
+# tasks/strongswan.yml
+- name: Generate certbot certificate
+  shell: >
+    certbot certonly --rsa-key-size 4096 --standalone --agree-tos --no-eff-email
+    --email {{ config_env.certbot_email }} -d {{ config_env.vpn_domain }}
+  args:
+    creates: /etc/letsencrypt/live/{{ config_env.vpn_domain }}/fullchain.pem
+
+- name: Copy fullchain.pem to /etc/ipsec.d/certs/
+  shell: cp /etc/letsencrypt/live/{{ config_env.vpn_domain }}/fullchain.pem /etc/ipsec.d/certs/
+
+- name: Copy privkey.pem to /etc/ipsec.d/private/
+  shell: cp /etc/letsencrypt/live/{{ config_env.vpn_domain }}/privkey.pem /etc/ipsec.d/private/
+
+- name: Copy chain.pem to /etc/ipsec.d/cacerts/
+  shell: cp /etc/letsencrypt/live/{{ config_env.vpn_domain }}/chain.pem /etc/ipsec.d/cacerts/
+
+- name: Check if /etc/ipsec.conf exists
+  stat:
+    path: /etc/ipsec.conf
+  register: ipsec_conf
+
+- name: Rename ipsec.conf to ipsec.conf.original if it exists
+  command:
+    cmd: mv /etc/ipsec.conf /etc/ipsec.conf.original
+  when: ipsec_conf.stat.exists
+
+- name: Copy ipsec.conf with variables to the server
+  template:
+    src: templates/ipsec.conf.j2
+    dest: /etc/ipsec.conf
+
+- name: Check if /etc/strongswan.conf exists
+  stat:
+    path: /etc/strongswan.conf
+  register: strongswan_conf
+
+- name: Rename strongswan.conf to strongswan.conf.original if it exists
+  command:
+    cmd: mv /etc/strongswan.conf /etc/strongswan.conf.original
+  when: strongswan_conf.stat.exists
+
+- name: Copy strongswan.conf with variables to the server
+  template:
+    src: templates/strongswan.conf.j2
+    dest: /etc/strongswan.conf
+
+- name: Copy ipsec.secrets with variables to the server
+  template:
+    src: templates/ipsec.secrets.j2
+    dest: /etc/ipsec.secrets
+
+- name: Restart strongSwan service
+  systemd:
+    name: strongswan-starter
+    state: restarted
+  become: yes
