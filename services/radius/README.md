@@ -44,12 +44,12 @@ Follow these steps to set up FreeRADIUS with PostgreSQL using Docker:
       docker run --rm -d --name my-radius -p 1812-1813:1812-1813/udp my-radius
       ```
 7. **Add new user for connection**:
-   - Add a user `demo` with password `12345` to the table `radcheck` for an example :
+   - Add a user `demo` with password `12345` to the table `radcheck` for an example:
      ```sql
      INSERT INTO radcheck VALUES (1, 'demo', 'Cleartext-Password', ':=', '12345');
       ```
-8. Configure a firewall on the server to allow UDP traffic on ports `1812` and `1813`.
-9. Set up a connection to the Radius server from the client by using its IP address and port number `1812` and secret in file `clients.conf`.
+8. **Configure a firewall on the server to allow UDP traffic on ports `1812` and `1813`**.
+9. **Set up a connection to the Radius server from the client by using its IP address and port number `1812` and secret in file `clients.conf`**.
 
 Ensure to replace placeholder values like IP addresses, login credentials, and client secrets with your specific configurations.
 
