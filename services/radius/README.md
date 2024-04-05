@@ -10,7 +10,7 @@ Follow these steps to set up FreeRADIUS with PostgreSQL using Docker:
 
 2. **Configure PostgreSQL**:
     - Create a user and a database named `radius`.
-    - Utilize the `schema.sql` file to establish the database structure.
+    - Utilize the `schema.sql` file to establish the database structure. ([actual PostgreSQL schema](https://github.com/FreeRADIUS/freeradius-server/blob/master/raddb/mods-config/sql/main/postgresql/schema.sql))
 
 3. **Add new user for connection**:
    - Add a user `demo` with password `12345` to the table `radcheck` for an example:
