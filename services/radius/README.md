@@ -2,8 +2,6 @@
 
 FreeRADIUS is an open-source implementation of RADIUS, an IETF protocol for AAA (Authorisation, Authentication, and Accounting). More information can be found on the FreeRADIUS website, where you can find the whole documentation as well as a quick start guide to quick start your RADIUS server.
 
----
-
 ## Installation Process
 
 Follow these steps to set up FreeRADIUS with PostgreSQL using Docker:

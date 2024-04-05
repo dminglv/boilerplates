@@ -4,8 +4,6 @@ strongSwan is free, open-source, and the most widely-used IPsec-based virtual pr
 
 strongSwan uses the IKEv2 protocol, which allows for direct IPSec tunneling between the server and the client. strongSwan stands for Strong Secure WAN and supports both versions of automatic keying exchange in IPsec VPN, IKE V1 and V2.
 
----
-
 ## Installation Process
 
 1.  **Install Ansible**: Ensure Ansible is installed on your system locally.
