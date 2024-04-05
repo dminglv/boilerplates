@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+  redis:
+    image: redis:alpine
+    container_name: redis
+    command:
+      - 'redis-server'
+      - '--databases 2'
+      - '--save 30 1'
+      - '--save 300 10'
+      - '--save 60 10000'
+      - '--maxmemory ${REDIS_MAXMEM:-100mb}'
+      - '--maxmemory-policy ${REDIS_POLICY:-noeviction}'
+      - '--requirepass example123'
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+    volumes:
+      - ./redis-data:/data
+    ports:
+      - '127.0.0.1:6379:6379'
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-h", "localhost", "-p", "6379", "-a", "example123", "ping" ]
+      start_period: 30s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - redisnet
+    restart: unless-stopped
+
+networks:
+  redisnet:
+    driver: bridge

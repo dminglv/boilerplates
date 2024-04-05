@@ -1,0 +1,33 @@
+version: "3.8"
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=example123 # change it
+      - RABBITMQ_ERLANG_COOKIE=secret_cookie # change it
+      - RABBITMQ_DISK_FREE_LIMIT=1GB
+    ports:
+      - '127.0.0.1:5672:5672'
+      - '127.0.0.1:15672:15672'
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+    volumes:
+      - ./rabbitmq-data/data/:/var/lib/rabbitmq
+      - ./rabbitmq-data/log/:/var/log/rabbitmq
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      start_period: 30s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - rabbitmqnet
+    restart: unless-stopped
+
+networks:
+  rabbitmqnet:
+    driver: bridge
