@@ -2,6 +2,8 @@
 
 FreeRADIUS is an open-source implementation of RADIUS, an IETF protocol for AAA (Authorisation, Authentication, and Accounting). More information can be found on the FreeRADIUS website, where you can find the whole documentation as well as a quick start guide to quick start your RADIUS server.
 
+---
+
 ## Installation Process
 
 Follow these steps to set up FreeRADIUS with PostgreSQL using Docker:
@@ -52,7 +54,9 @@ Follow these steps to set up FreeRADIUS with PostgreSQL using Docker:
 8. **Configure a firewall on the server to allow UDP traffic on ports `1812` and `1813`**.
 9. **Set up a connection to the Radius server from the client by using its IP address and port number `1812` and secret in file `clients.conf`**.
 
-Ensure to replace placeholder values like IP addresses, login credentials, and client secrets with your specific configurations.
+---
+
+***Ensure to replace placeholder values like IP addresses, login credentials, and client secrets with your specific configurations.***
 
 
 For more resources and templates, check out the [boilerplates GitHub repository](https://github.com/dminglv/boilerplates).

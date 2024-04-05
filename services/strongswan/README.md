@@ -4,6 +4,8 @@ strongSwan is free, open-source, and the most widely-used IPsec-based virtual pr
 
 strongSwan uses the IKEv2 protocol, which allows for direct IPSec tunneling between the server and the client. strongSwan stands for Strong Secure WAN and supports both versions of automatic keying exchange in IPsec VPN, IKE V1 and V2.
 
+---
+
 ## Installation Process
 
 1.  **Install Ansible**: Ensure Ansible is installed on your system locally.
@@ -20,6 +22,17 @@ strongSwan uses the IKEv2 protocol, which allows for direct IPSec tunneling betw
    ansible-playbook -i inventory.ini all-install.yml
    ```
 
-Ensure to replace placeholder values like IP addresses, login credentials, and client secrets with your specific configurations.
+**Optionally**, you can switch from the strongswan authentication method to EAP. To do this, please open the `tasks/strongswan.yml` file and replace the following configuration:
+   ```yaml
+   - name: Copy ipsec.conf with variables to the server
+     template:
+      src: templates/ipsec-eap.conf.j2
+      dest: /etc/ipsec.conf
+   ```
+And add the users to the file `templates/ipsec.secrets.j2`
+
+---
+
+***Ensure to replace placeholder values like IP addresses, login credentials, and client secrets with your specific configurations.***
 
 For more resources and templates, check out the [boilerplates GitHub repository](https://github.com/dminglv/boilerplates).
