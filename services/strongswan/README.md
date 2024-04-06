@@ -11,7 +11,7 @@ strongSwan uses the IKEv2 protocol, which allows for direct IPSec tunneling betw
 3. Configure the connection to the server in order to install strongSwan in the `inventory.ini`:
    ```ini
    [vpn_servers]
-   127.0.0.01 ansible_user=root ansible_ssh_pass=password
+   127.0.0.1 ansible_user=root ansible_ssh_pass=password
    ```
 4. Use a subdomain for each VPN server. Add an A DNS record that points to your server.
 5. Configure the installation configuration in the config file `config_env.yml`
