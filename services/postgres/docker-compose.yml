@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   postgres:
-    image: postgres:16.2
+    image: postgres:17
     container_name: postgres
     environment:
       - POSTGRES_INITDB_ARGS=${POSTGRES_INITDB_ARGS---data-checksums}
@@ -9,7 +9,6 @@ services:
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=example123
       - POSTGRES_DB=${POSTGRES_DB:-$POSTGRES_USER}
-      - TZ=${TZ:-UTC}
     ports:
       - '127.0.0.1:5432:5432'
     healthcheck:
